@@ -28,6 +28,12 @@ async function run() {
             const product = await cursor.toArray();
             res.send(product);
         })
+        //get api for getting orders
+        app.get("/orders", async (req, res) => {
+            const cursor = orderedProductsCollection.find({});
+            const orders = await cursor.toArray();
+            res.send(orders);
+        })
         // get api for getting single product
         app.get("/product/:id", async (req, res) => {
             const id = req.params.id;
