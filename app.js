@@ -20,6 +20,7 @@ async function run() {
         await client.connect();
         const database = client.db("oclock");
         const productsCollection = database.collection("products");
+        const orderedProductsCollection = database.collection("orders");
 
         // get api to getting product
         app.get("/products", async (req, res) => {
@@ -40,6 +41,19 @@ async function run() {
             const result = await productsCollection.insertOne(product);
             res.json(result);
         });
+        // post api for buying
+        app.post("/order", async (req, res) => {
+            const product = req.body;
+            const result = await orderedProductsCollection.insertOne(product);
+            res.json(result);
+        });
+        // delete api for remove order
+        app.delete('/removeorder/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await orderedProductsCollection.deleteOne(query);
+            res.json(result);
+        })
     } finally {
         // await client.close();
     }
