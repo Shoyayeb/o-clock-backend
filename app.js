@@ -27,6 +27,13 @@ async function run() {
             const product = await cursor.toArray();
             res.send(product);
         })
+        // get api for getting single product
+        app.get("/product/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const product = await productsCollection.findOne(query);
+            res.json(product);
+        });
         // post api for adding product
         app.post("/addproduct", async (req, res) => {
             const product = req.body;
