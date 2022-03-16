@@ -21,6 +21,7 @@ async function run() {
         const database = client.db("oclock");
         const productsCollection = database.collection("products");
         const orderedProductsCollection = database.collection("orders");
+        const usersCollection = database.collection("users");
 
         // get api to getting product
         app.get("/products", async (req, res) => {
@@ -41,6 +42,21 @@ async function run() {
             const product = await productsCollection.findOne(query);
             res.json(product);
         });
+        // get api for getting single user
+        app.get("/users/:id", async (req, res) => {
+            const email = req.params.id;
+            console.log(email)
+            const query = { email: (email) };
+            const user = await usersCollection.findOne(query);
+            let isAdmin = false;
+            let gotUser = {};
+            if (user?.role === 'admin') {
+                isAdmin = true,
+                    gotUser = user;
+            }
+            res.json({ admin: isAdmin });
+        });
+
         // post api for adding product
         app.post("/addproduct", async (req, res) => {
             const product = req.body;
@@ -51,6 +67,16 @@ async function run() {
         app.post("/order", async (req, res) => {
             const product = req.body;
             const result = await orderedProductsCollection.insertOne(product);
+            res.json(result);
+        });
+
+        // put api for adding admin with email and password
+        app.put('/addadmin', async (req, res) => {
+            const admin = req.body;
+            const filteredUsers = { email: admin.email }
+            // const options = { upsert: true };
+            const updateDoc = { $set: { role: 'admin' } };
+            const result = await usersCollection.updateOne(filteredUsers, updateDoc);
             res.json(result);
         });
         // delete api for remove order
