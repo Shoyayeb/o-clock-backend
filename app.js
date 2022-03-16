@@ -42,6 +42,12 @@ async function run() {
             const product = await productsCollection.findOne(query);
             res.json(product);
         });
+        // get api for getting users
+        app.get("/users", async (req, res) => {
+            const cursor = usersCollection.find({});
+            const users = await cursor.toArray();
+            res.send(users);
+        });
         // get api for getting single user
         app.get("/users/:id", async (req, res) => {
             const email = req.params.id;
@@ -70,8 +76,23 @@ async function run() {
             res.json(result);
         });
 
+        // post api for adding users with email and password
+        app.post("/adduser", async (req, res) => {
+            const user = req.body;
+            const result = await usersCollection.insertOne(user);
+            res.json(result);
+        });
+        // put api for adding user with social service login
+        app.put('/adduser', async (req, res) => {
+            const user = req.body;
+            const filteredUsers = { email: user.email }
+            const options = { upsert: true };
+            const updateDoc = { $set: user };
+            const result = await usersCollection.updateOne(filteredUsers, updateDoc, options);
+            res.json(result);
+        });
         // put api for adding admin with email and password
-        app.put('/addadmin', async (req, res) => {
+        app.put('/adduser/admin', async (req, res) => {
             const admin = req.body;
             const filteredUsers = { email: admin.email }
             // const options = { upsert: true };
